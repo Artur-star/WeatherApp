@@ -6,5 +6,5 @@ import com.example.weatherapi.adapters.WeatherModel
 
 class MainViewModel :ViewModel() {
     val livaDataCurrent = MutableLiveData<WeatherModel>()
-    val liveDataList = MutableLiveData<List<WeatherModel>>()
+    val liveDataList = MutableLiveData<List<WeatherModel >>()
 }
