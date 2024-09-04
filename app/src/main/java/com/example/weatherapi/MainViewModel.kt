@@ -5,6 +5,6 @@ import androidx.lifecycle.ViewModel
 import com.example.weatherapi.adapters.WeatherModel
 
 class MainViewModel :ViewModel() {
-    val livaDataCurrent = MutableLiveData<WeatherModel>()
+    val liveDataCurrent = MutableLiveData<WeatherModel>()
     val liveDataList = MutableLiveData<List<WeatherModel >>()
 }
