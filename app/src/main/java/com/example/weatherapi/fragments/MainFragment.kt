@@ -16,6 +16,7 @@ import com.android.volley.Request
 import com.android.volley.RequestQueue
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.example.weatherapi.DialogManager
 import com.example.weatherapi.MainViewModel
 import com.example.weatherapi.adapters.VpAdapter
 import com.example.weatherapi.adapters.WeatherModel
@@ -62,16 +63,23 @@ class MainFragment : Fragment() {
         TabLayoutMediator(tabLayout2, vp) { tab, pos ->
             tab.text = tList[pos]
         }.attach()
+        ibSearch.setOnClickListener {
+            DialogManager.searchByNameDialog(requireContext(), object : DialogManager.Listener{
+                override fun onClick(name: String?) {
+                    name?.let { it1 -> requestWeatherData(it1) }
+                }
+            })
+        }
     }
 
-    private fun updateCurrentCard() = with(binding){
+    private fun updateCurrentCard() = with(binding) {
         model.liveDataCurrent.observe(viewLifecycleOwner) { it ->
             val maxMinTemp = "${it.maxTemp}°C/${it.minTemp}°C"
             tvData.text = it.time
             tvCity.text = it.city
-            tvCurrentTemp.text = it.currentTemp
+            tvCurrentTemp.text = it.currentTemp.ifEmpty { maxMinTemp }
             tvCondition.text = it.condition
-            tvMaxMin.text = maxMinTemp
+            tvMaxMin.text = if (it.currentTemp.isEmpty()) "" else maxMinTemp
             Picasso.get().load("https:" + it.imageUrl).into(imWeather)
         }
     }
@@ -118,16 +126,16 @@ class MainFragment : Fragment() {
         val list = ArrayList<WeatherModel>()
         val daysArray: JSONArray = mainObject.getJSONObject("forecast").getJSONArray("forecastday")
 
-        val city =  mainObject.getJSONObject("location").getString("name")
+        val city = mainObject.getJSONObject("location").getString("name")
         for (i in 0 until daysArray.length()) {
             val day = daysArray[i] as JSONObject
-            val item = WeatherModel (
+            val item = WeatherModel(
                 city = city,
                 time = day.getString("date"),
                 condition = day.getJSONObject("day").getJSONObject("condition").getString("text"),
                 currentTemp = "",
-                maxTemp = day.getJSONObject("day").getString("maxtemp_c"),
-                minTemp = day.getJSONObject("day").getString("mintemp_c"),
+                maxTemp = day.getJSONObject("day").getString("maxtemp_c").toFloat().toInt().toString(),
+                minTemp = day.getJSONObject("day").getString("mintemp_c").toFloat().toInt().toString(),
                 imageUrl = day.getJSONObject("day").getJSONObject("condition").getString("icon"),
                 hours = day.getJSONArray("hour").toString()
             )
